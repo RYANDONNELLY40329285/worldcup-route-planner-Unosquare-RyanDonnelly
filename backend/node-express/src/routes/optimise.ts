@@ -4,6 +4,7 @@ import * as CityModel from '../models/City';
 import { DateOnlyStrategy } from '../strategies/DateOnlyStrategy';
 // Tip: You can also import DateOnlyStrategy to compare results
 import { NearestNeighbourStrategy } from '../strategies/NearestNeighbourStrategy';
+import * as FlightModel from '../models/FlightPrice';
 
 const router = Router();
 
@@ -106,11 +107,118 @@ router.post('/optimise', (req, res) => {
 //     - missingCountries: list of countries not covered
 //
 // ============================================================
-
 router.post('/budget', (req, res) => {
-  // TODO: Replace with your implementation
-  res.status(200).json({});
-});
+  try {
+    const { matchIds, originCityId, budget } = req.body;
+
+    // Validation
+    if (!Array.isArray(matchIds) || matchIds.length === 0) {
+      return res.status(400).json({ error: 'matchIds must be a non-empty array' });
+    }
+
+    if (typeof originCityId !== 'string' || typeof budget !== 'number') {
+      return res.status(400).json({ error: 'originCityId and budget are required' });
+    }
+
+    const matches = MatchModel.getByIds(matchIds);
+    const originCity = CityModel.getById(originCityId);
+    const flights = FlightModel.getAll();
+
+    if (!originCity) {
+      return res.status(404).json({ error: 'Origin city not found' });
+    }
+
+    if (matches.length === 0) {
+      return res.status(404).json({ error: 'No matches found' });
+    }
+
+
+    // Build flight lookup
+    const flightMap = new Map<string, number>(
+      flights.map((f: any) => [
+        `${f.origin_city_id}-${f.destination_city_id}`,
+        f.price_usd,
+      ])
+    );
+
+
+    // Ticket cost
+    const ticketCost = matches.reduce((sum, m) => sum + m.ticketPrice, 0);
+
+  
+    // Flight cost
+    let flightCost = 0;
+    let currentCityId = originCity.id;
+
+    for (const match of matches) {
+      const key = `${currentCityId}-${match.city.id}`;
+      const price = Number(flightMap.get(key) ?? 0);
+
+      flightCost += price;
+      currentCityId = match.city.id;
+    }
+
+    // Accommodation cost (1 night per match)
+    const accommodationCost = matches.reduce(
+      (sum, m) => sum + m.city.accommodation_per_night,
+      0
+    );
+
+
+    // Total cost
+    const totalCost = ticketCost + flightCost + accommodationCost;
+
+    // Country validation
+    const countriesVisited = Array.from(
+      new Set(matches.map(m => m.city.country))
+    );
+
+    const REQUIRED_COUNTRIES = ['USA', 'Mexico', 'Canada'];
+
+    const missingCountries = REQUIRED_COUNTRIES.filter(
+      c => !countriesVisited.includes(c)
+    );
+
+    // Feasibility
+    const withinBudget = totalCost <= budget;
+    const hasAllCountries = missingCountries.length === 0;
+    const feasible = withinBudget && hasAllCountries;
+
+    // Suggestions
+    const suggestions: string[] = [];
+
+    if (!withinBudget) {
+      suggestions.push('Reduce number of matches or choose cheaper cities');
+    }
+
+    if (!hasAllCountries) {
+      suggestions.push(`Add matches in: ${missingCountries.join(', ')}`);
+    }
+
+    // Response
+    return res.status(200).json({
+      breakdown: {
+        ticketCost,
+        flightCost,
+        accommodationCost,
+      },
+      totalCost,
+      budget,
+      feasible,
+      countriesVisited,
+      missingCountries,
+      suggestions,
+    });
+
+  } catch (error) {
+    console.error('[POST /api/route/budget] Error:', error);
+
+    return res.status(500).json({
+      error: 'Failed to calculate budget',
+    });
+  }
+}); 
+
 
 // ============================================================
 //  POST /api/route/best-value — BONUS CHALLENGE #1
