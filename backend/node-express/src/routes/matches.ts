@@ -29,11 +29,26 @@ const router = Router();
 //   where homeTeam, awayTeam, and city are full objects (not just IDs)
 //
 // ============================================================
+router.get('/', (req, res) => {
+  try {
+    // Extract and safely type query params
+    const city = typeof req.query.city === 'string' ? req.query.city : undefined;
+    const date = typeof req.query.date === 'string' ? req.query.date : undefined;
 
-router.get('/', (_req, res) => {
-  // TODO: Replace with your implementation
-  res.status(501).json({ error: 'Not implemented yet' });
+    // Delegate filtering logic to model layer
+    const matches = MatchModel.getAll({ city, date });
+
+    return res.status(200).json(matches);
+
+  } catch (error) {
+    console.error('[GET /api/matches] Error:', error);
+
+    return res.status(500).json({
+      error: 'Failed to fetch matches',
+    });  
+  }
 });
+
 
 // ============================================================
 //  GET /api/matches/:id — Return a single match by ID
@@ -44,11 +59,31 @@ router.get('/', (_req, res) => {
 // Hint: MatchModel.getById(id) returns a match or undefined.
 // Return 404 if the match is not found.
 //
-// ============================================================
+// ===========================================================
+router.get('/:id', (req, res) => {
+  try {
+    const { id } = req.params;
 
-router.get('/:id', (_req, res) => {
-  // TODO: Replace with your implementation
-  res.status(501).json({ error: 'Not implemented yet' });
+    if (!id) {
+      return res.status(400).json({ error: 'Match ID is required' });
+    }
+  
+    const match = MatchModel.getById(id);
+
+    if (!match) {
+      return res.status(404).json({ error: 'Match not found' });
+    }
+
+    return res.status(200).json(match);
+
+  } catch (error) {
+    console.error(`[GET /api/matches/${req.params.id}] Error:`, error);
+
+    return res.status(500).json({
+      error: 'Failed to fetch match',
+    });
+  }
 });
+
 
 export default router;
