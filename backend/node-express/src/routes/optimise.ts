@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as MatchModel from '../models/Match';
 import * as CityModel from '../models/City';
-import { NearestNeighbourStrategy } from '../strategies/NearestNeighbourStrategy';
+import { DateOnlyStrategy } from '../strategies/DateOnlyStrategy';
 // Tip: You can also import DateOnlyStrategy to compare results
 // import { DateOnlyStrategy } from '../strategies/DateOnlyStrategy';
 
@@ -34,8 +34,44 @@ const router = Router();
 // ============================================================
 
 router.post('/optimise', (req, res) => {
-  // TODO: Replace with your implementation
-  res.status(200).json({});
+  try {
+    const { matchIds, originCityId } = req.body;
+
+
+    if (!Array.isArray(matchIds) || matchIds.length === 0) {
+      return res.status(400).json({ error: 'matchIds must be a non-empty array' });
+    }
+
+    if (!originCityId) {
+      return res.status(400).json({ error: 'originCityId is required' });
+    }
+
+    const matches = MatchModel.getByIds(matchIds);
+    const originCity = CityModel.getById(originCityId);
+
+    if (!originCity) {
+      return res.status(404).json({ error: 'Origin city not found' });
+    }
+
+    if (matches.length === 0) {
+      return res.status(404).json({ error: 'No matches found for given IDs' });
+    }
+
+
+    const strategy = new DateOnlyStrategy();
+
+    const route = strategy.optimise(matches);
+
+
+    return res.status(200).json(route);
+
+  } catch (error) {
+    console.error('[POST /api/route/optimise] Error:', error);
+
+    return res.status(500).json({
+      error: 'Failed to optimise route',
+    });
+  }
 });
 
 // ============================================================
