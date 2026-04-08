@@ -59,16 +59,76 @@ export class NearestNeighbourStrategy implements RouteStrategy {
   //
   // ============================================================
 
-  optimise(matches: MatchWithCity[], originCity?: City): OptimisedRoute {
-    // TODO: Your code here
-    const orderedMatches: MatchWithCity[] = [];
+optimise(matches: MatchWithCity[], originCity?: City): OptimisedRoute {
 
-    // TODO: Your code here
-
-    const route = this.buildRoute(orderedMatches, originCity);
-    this.validateRoute(route, orderedMatches);
-    return route;
+  // handle null dara
+  if (!matches || matches.length === 0) {
+    return this.createEmptyRoute();
   }
+
+  // sort data by kick of 
+  const sorted = [...matches].sort(
+    (a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime()
+  );
+
+  // Group matches by date (YYYY-MM-DD)  
+  const grouped: Record<string, MatchWithCity[]> = {};
+
+  for (const match of sorted) {
+    const date = match.kickoff.split('T')[0];
+
+    if (!grouped[date]) {
+      grouped[date] = [];
+    }
+
+    grouped[date].push(match);
+  }
+
+  const orderedMatches: MatchWithCity[] = [];
+
+  // Start at orgin
+  let currentCity = originCity ?? sorted[0].city;
+
+  // Loop through each date in order
+  for (const date of Object.keys(grouped).sort()) {
+    const matchesOnDay = grouped[date];
+
+    // If only one match → pick it
+    if (matchesOnDay.length === 1) {
+      const selected = matchesOnDay[0];
+      orderedMatches.push(selected);
+      currentCity = selected.city;
+      continue;
+    }
+
+    // Multiple matches → find nearest
+    let closestMatch = matchesOnDay[0];
+    let minDistance = Infinity;
+
+    for (const match of matchesOnDay) {
+      const distance = calculateDistance(
+        currentCity.latitude,
+        currentCity.longitude,
+        match.city.latitude,
+        match.city.longitude
+      );
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestMatch = match;
+      }
+    }
+
+    orderedMatches.push(closestMatch);
+    currentCity = closestMatch.city;
+  }
+
+  const route = this.buildRoute(orderedMatches, originCity);
+  this.validateRoute(route, orderedMatches);
+
+  return route;
+} 
+
 
   // ============================================================
   //  Validation — YOUR TASK
@@ -88,9 +148,39 @@ export class NearestNeighbourStrategy implements RouteStrategy {
   //
   // ============================================================
 
-  private validateRoute(route: OptimisedRoute, matches: MatchWithCity[]): void {
-    // TODO: Your implementation
+private validateRoute(route: OptimisedRoute, matches: MatchWithCity[]): void {
+
+  const warnings: string[] = [];
+
+
+  if (matches.length < NearestNeighbourStrategy.MINIMUM_MATCHES) {
+    warnings.push(`Must include at least ${NearestNeighbourStrategy.MINIMUM_MATCHES} matches`);
   }
+
+
+  const countriesVisited = new Set<string>();
+
+  for (const match of matches) {
+    countriesVisited.add(match.city.country);
+  }
+
+  const visitedArray = Array.from(countriesVisited);
+
+  const missingCountries = NearestNeighbourStrategy.REQUIRED_COUNTRIES.filter(
+    country => !countriesVisited.has(country)
+  );
+
+  if (missingCountries.length > 0) {
+    warnings.push(`Missing countries: ${missingCountries.join(', ')}`);
+  }
+
+  route.countriesVisited = visitedArray;
+  route.missingCountries = missingCountries;
+  route.warnings = warnings;
+  route.feasible = warnings.length === 0;
+}
+
+
 
   // ============================================================
   //  Helper Methods (provided - no changes needed)

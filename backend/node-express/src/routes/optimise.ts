@@ -3,7 +3,7 @@ import * as MatchModel from '../models/Match';
 import * as CityModel from '../models/City';
 import { DateOnlyStrategy } from '../strategies/DateOnlyStrategy';
 // Tip: You can also import DateOnlyStrategy to compare results
-// import { DateOnlyStrategy } from '../strategies/DateOnlyStrategy';
+import { NearestNeighbourStrategy } from '../strategies/NearestNeighbourStrategy';
 
 const router = Router();
 
@@ -37,7 +37,7 @@ router.post('/optimise', (req, res) => {
   try {
     const { matchIds, originCityId } = req.body;
 
-
+    // Validation
     if (!Array.isArray(matchIds) || matchIds.length === 0) {
       return res.status(400).json({ error: 'matchIds must be a non-empty array' });
     }
@@ -46,6 +46,8 @@ router.post('/optimise', (req, res) => {
       return res.status(400).json({ error: 'originCityId is required' });
     }
 
+  
+    // Fetch data
     const matches = MatchModel.getByIds(matchIds);
     const originCity = CityModel.getById(originCityId);
 
@@ -56,12 +58,10 @@ router.post('/optimise', (req, res) => {
     if (matches.length === 0) {
       return res.status(404).json({ error: 'No matches found for given IDs' });
     }
+   
+    const strategy = new NearestNeighbourStrategy();
 
-
-    const strategy = new DateOnlyStrategy();
-
-    const route = strategy.optimise(matches);
-
+    const route = strategy.optimise(matches, originCity);
 
     return res.status(200).json(route);
 
