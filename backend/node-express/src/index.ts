@@ -23,6 +23,12 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-app.listen(PORT, () => {
-  console.log(`🏟️  World Cup API running on http://localhost:${PORT}`);
-});
+
+
+export default app;
+
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`🏟️  World Cup API running on http://localhost:${PORT}`);
+  });
+}
