@@ -100,25 +100,52 @@ function BestValueDialog({ result, budget, onClose, onApply }: BestValueDialogPr
           {/* Matches List */}
           <div className="best-value-matches">
             <h4>Recommended Matches ({matchCount})</h4>
-            <ul className="match-list">
-              {matches.map((match) => {
-                const kickoff = new Date(match.kickoff);
-                const dateStr = kickoff.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-                const timeStr = kickoff.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                return (
-                  <li key={match.id} className="match-item">
-                    <div className="match-teams">
-                      {match.homeTeam.name} vs {match.awayTeam.name}
-                    </div>
-                    <div className="match-details">
-                      <span>{match.city.name}</span>
-                      <span>{dateStr}, {timeStr}</span>
-                      <span className="ticket-price">${match.ticketPrice}</span>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+              <ul className="match-list">
+  {matches.length === 0 && <p>No matches available</p>}
+
+  {matches.map((match) => {
+    const kickoff = new Date(match.kickoff);
+
+    const dateStr = kickoff.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+    });
+
+    const timeStr = kickoff.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const homeTeam =
+      typeof match.homeTeam === 'string'
+        ? match.homeTeam
+        : match.homeTeam.name;
+
+    const awayTeam =
+      typeof match.awayTeam === 'string'
+        ? match.awayTeam
+        : match.awayTeam.name;
+
+    const cityName =
+      typeof match.city === 'string'
+        ? match.city
+        : match.city.name;
+
+    return (
+      <li key={match.id} className="match-item">
+        <div className="match-teams">
+          {homeTeam} vs {awayTeam}
+        </div>
+
+        <div className="match-details">
+          <span>{cityName}</span>
+          <span>{dateStr}, {timeStr}</span>
+          <span className="ticket-price">${match.ticketPrice}</span>
+        </div>
+      </li>
+    );
+  })}
+</ul>
           </div>
         </div>
 
