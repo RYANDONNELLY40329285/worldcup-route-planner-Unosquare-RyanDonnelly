@@ -24,82 +24,74 @@ End users can select matches, calculate total trip cost and get an optimised tra
  ## Project Structure  
 
  ### Backend (/backend/node -express)
+
+```
+/backend/node-express
 ├── src/
 │   ├── bonus/
 │   │   └── BestValueFinder.ts        # Advanced optimisation logic
-│   │
 │   ├── db/
-│   │   ├── connection.ts            # Database connection setup
-│   │   ├── schema.sql               # Database schema
-│   │   └── seed.ts                  # Seed data for testing
-│   │
+│   │   ├── connection.ts             # Database connection
+│   │   ├── schema.sql                # Schema
+│   │   └── seed.ts                   # Seed data
 │   ├── models/
-│   │   ├── City.ts                  # City data model
-│   │   ├── FlightPrice.ts           # Flight pricing model
-│   │   ├── Itinerary.ts             # Travel itinerary model
-│   │   ├── Match.ts                 # Match data model
-│   │   └── Team.ts                  # Team data model
-│   │
+│   │   ├── City.ts
+│   │   ├── FlightPrice.ts
+│   │   ├── Itinerary.ts
+│   │   ├── Match.ts
+│   │   └── Team.ts
 │   ├── routes/
-│   │   ├── cities.ts                # City-related endpoints
-│   │   ├── itineraries.ts           # Itinerary generation endpoints
-│   │   ├── matches.ts               # Match data endpoints
-│   │   └── optimise.ts              # Route optimisation endpoints
-│   │
+│   │   ├── cities.ts
+│   │   ├── itineraries.ts
+│   │   ├── matches.ts
+│   │   └── optimise.ts
 │   ├── strategies/
-│   │   ├── DateOnlyStrategy.ts      # Date-based route planning
-│   │   ├── NearestNeighbourStrategy.ts  # Greedy optimisation algorithm
-│   │   └── RouteStrategy.ts         # Strategy interface
-│   │
+│   │   ├── DateOnlyStrategy.ts
+│   │   ├── NearestNeighbourStrategy.ts
+│   │   └── RouteStrategy.ts
 │   ├── utils/
-│   │   ├── buildRoute.ts            # Route construction logic
-│   │   ├── CostCalculator.ts       # Travel cost calculations
-│   │   └── haversine.ts            # Distance calculations
-│   │
-│   └── index.ts                    # Application entry point
-│
+│   │   ├── buildRoute.ts
+│   │   ├── CostCalculator.ts
+│   │   └── haversine.ts
+│   └── index.ts
 ├── __tests__/
 │   ├── Budget.test.ts
 │   └── NearestNeighbourStrategy.test.ts
-│
-├── package.json                    # Dependencies & scripts
-├── tsconfig.json                   # TypeScript config
-├── jest.config.ts                  # Testing configuration
-├── worldcup.db                     # SQLite database
-
+├── package.json
+├── tsconfig.json
+├── jest.config.ts
+└── worldcup.db
+```
 
 
 ### Frontend (/frontend)
+
+```
 /frontend
 ├── src/
 │   ├── api/
-│   │   └── client.ts              # API client for backend communication
-│   │
+│   │   └── client.ts
 │   ├── components/
-│   │   ├── BestValueDialog.tsx    # Displays best-value travel options
-│   │   ├── BudgetPlanner.tsx      # Budget planning UI
-│   │   ├── CostBreakdownPanel.tsx # Cost analysis view
-│   │   ├── ItineraryPanel.tsx     # Displays generated itineraries
-│   │   ├── MatchBrowser.tsx       # Browse available matches
-│   │   ├── MatchCard.tsx          # Individual match UI component
-│   │   ├── MatchSelector.tsx      # Select matches for planning
-│   │   └── RouteMap.tsx           # Visual map of travel route
-│   │
+│   │   ├── BestValueDialog.tsx
+│   │   ├── BudgetPlanner.tsx
+│   │   ├── CostBreakdownPanel.tsx
+│   │   ├── ItineraryPanel.tsx
+│   │   ├── MatchBrowser.tsx
+│   │   ├── MatchCard.tsx
+│   │   ├── MatchSelector.tsx
+│   │   └── RouteMap.tsx
 │   ├── types/
-│   │   └── index.ts               # Shared TypeScript types
-│   │
-│   ├── App.tsx                   # Root React component
-│   ├── main.tsx                  # Application entry point
-│   └── App.css                   # Global styles
-│
+│   │   └── index.ts
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── App.css
 ├── __tests__/
-│   └── RouteMap.test.tsx         # Component tests
-│
-├── index.html                   # Vite HTML entry
-├── vite.config.ts               # Vite configuration
-├── tsconfig.json                # TypeScript config
-├── package.json                 # Dependencies & scripts
-
+│   └── RouteMap.test.tsx
+├── index.html
+├── vite.config.ts
+├── tsconfig.json
+└── package.json
+```
 
 
 ##  Setup 
