@@ -109,3 +109,33 @@ export function getByIds(ids: string[]): MatchWithCity[] {
   const rows = stmt.all(...ids) as MatchRow[];
   return rows.map(rowToMatch);
 }
+
+export function getAllWithCities(): MatchWithCity[] {
+  const stmt = db.prepare(`
+    SELECT m.*, c.id as city_id, c.name as city_name, c.country, 
+           c.latitude, c.longitude, c.accommodation_per_night
+    FROM matches m
+    JOIN cities c ON m.city_id = c.id
+  `);
+
+  const rows = stmt.all();
+
+  return rows.map((row: any) => ({
+    id: row.id,
+    kickoff: row.kickoff,
+    group: row.group,
+    matchDay: row.match_day,
+    ticketPrice: row.ticket_price,
+    homeTeam: { id: row.home_team_id, name: row.home_team_name, code: '', group: row.group },
+    awayTeam: { id: row.away_team_id, name: row.away_team_name, code: '', group: row.group },
+    city: {
+      id: row.city_id,
+      name: row.city_name,
+      country: row.country,
+      latitude: row.latitude,
+      longitude: row.longitude,
+      stadium: '',
+      accommodation_per_night: row.accommodation_per_night,
+    },
+  }));
+}

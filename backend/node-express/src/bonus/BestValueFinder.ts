@@ -64,9 +64,83 @@ export function findBestValue(
   flightPrices: FlightPrice[],
   originCity: City
 ): BestValueResult {
-  // TODO: Implement this function
-  return buildErrorResult('Not implemented yet');
+
+  // --------------------------------------------------
+  // 1. Validation
+  // --------------------------------------------------
+  if (!allMatches || allMatches.length === 0) {
+    return buildErrorResult('No matches available');
+  }
+
+  let bestCombination: MatchWithCity[] | null = null;
+  let bestCost = Infinity;
+  let foundWithinBudget = false;
+
+  // --------------------------------------------------
+  // 2. Try combinations (largest → smallest)
+  // --------------------------------------------------
+  for (let size = allMatches.length; size >= MINIMUM_MATCHES; size--) {
+    const combinations = generateValidCombinations(allMatches, size);
+
+    // Skip if no valid combinations for this size
+    if (combinations.length === 0) continue;
+
+    for (const combination of combinations) {
+      const totalCost = calculateTotalCost(
+        combination,
+        originCity,
+        flightPrices
+      );
+
+      // ----------------------------------------------
+      // Case 1: Within budget
+      // ----------------------------------------------
+      if (totalCost <= budget) {
+        if (
+          !bestCombination ||
+          combination.length > bestCombination.length ||
+          (combination.length === bestCombination.length && totalCost < bestCost)
+        ) {
+          bestCombination = combination;
+          bestCost = totalCost;
+          foundWithinBudget = true;
+        }
+      }
+
+      // ----------------------------------------------
+      // Case 2: Over budget (only if none found yet)
+      // ----------------------------------------------
+      else if (!foundWithinBudget && totalCost < bestCost) {
+        bestCombination = combination;
+        bestCost = totalCost;
+      }
+    }
+
+    // --------------------------------------------------
+    // EARLY EXIT → once best size within budget found
+    // --------------------------------------------------
+    if (foundWithinBudget) break;
+  }
+
+  // --------------------------------------------------
+  // 3. Return result
+  // --------------------------------------------------
+  if (!bestCombination) {
+    return buildErrorResult(
+      'No valid combination found that covers all required countries'
+    );
+  }
+
+  return buildResult(
+    bestCombination,
+    bestCost,
+    foundWithinBudget,
+    budget,
+    originCity,
+    flightPrices
+  );
 }
+
 
 // ============================================================
 // HELPER METHODS - You can use these in your implementation

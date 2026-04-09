@@ -5,6 +5,7 @@ import { DateOnlyStrategy } from '../strategies/DateOnlyStrategy';
 // Tip: You can also import DateOnlyStrategy to compare results
 import { NearestNeighbourStrategy } from '../strategies/NearestNeighbourStrategy';
 import * as FlightModel from '../models/FlightPrice';
+import { findBestValue } from '../bonus/BestValueFinder';
 
 const router = Router();
 
@@ -245,10 +246,35 @@ router.post('/budget', (req, res) => {
 // Hint: Import and use the BestValueFinder from '../bonus/BestValueFinder'
 //
 // ============================================================
-
 router.post('/best-value', (req, res) => {
-  // TODO: Replace with your implementation (BONUS)
-  res.status(200).json({});
+  try {
+    const { budget, originCityId } = req.body;
+
+    const matches = MatchModel.getAllWithCities(); // important
+    const originCity = CityModel.getById(originCityId);
+    const flights = FlightModel.getAll();
+
+    if (!originCity) {
+      return res.status(404).json({ error: 'Origin city not found' });
+    }
+
+    const result = findBestValue(
+      matches,
+      budget,
+      originCityId,
+      flights,
+      originCity
+    );
+
+    console.log('BEST VALUE RESULT:', result); 
+
+    return res.status(200).json(result); 
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Failed to find best value' });
+  }
 });
+
 
 export default router;
