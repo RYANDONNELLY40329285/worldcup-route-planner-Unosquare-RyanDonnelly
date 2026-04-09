@@ -1,0 +1,31 @@
+##Frontend Structure
+
+- .
+  - generateFrontendStructure.cjs
+  - index.html
+  - jest.config.js
+  - jest.setup.ts
+  - package-lock.json
+  - package.json
+  - README.md
+  - src
+    - api
+      - client.ts
+    - App.css
+    - App.tsx
+    - components
+      - BestValueDialog.tsx
+      - BudgetPlanner.tsx
+      - CostBreakdownPanel.tsx
+      - ItineraryPanel.tsx
+      - MatchBrowser.tsx
+      - MatchCard.tsx
+      - MatchSelector.tsx
+      - RouteMap.tsx
+    - main.tsx
+    - types
+      - index.ts
+  - tsconfig.json
+  - vite.config.ts
+  - __tests__
+    - RouteMap.test.tsx

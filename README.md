@@ -1,139 +1,198 @@
-# World Cup 2026 Travel Route Planner
+#  World Cup 2026 Travel Planner 
 
 Unosquare Graduate / Junior SWE Coding Challenge
 
-## Overview
+## Overview 
 
-Build a system that helps FIFA World Cup 2026 fans plan optimal travel routes between host cities based on match schedules. The tournament spans **48 teams**, **16 cities**, and **3 countries** (USA, Mexico, Canada).
+Full stack web app for planing an optimised travel route accross the 2026 Host nations (Canada, Mexico, USA)
+End users can select matches, calculate total trip cost and get an optimised travel route. 
 
-See [CHALLENGE.md](./CHALLENGE.md) for `The Scenario` and full instructions.
+## Architecture Overiew 
 
-**NOTE**: Clone this repository and copy the contents into a new repository for your account. Please share your Github URL when you are done. 
+### Frontend (React + TypeScript)
+-- Built with Ract + Rite 
+-- Includes an interactive map (react-leaflet)
+-- Uses React Hookls and integrates with backend via Rest API 
 
-We recommend spending a maximum 2-3 hours on the challenge (excluding setup); however the time spent is entirely up to the individual.
+### Backend (Node.js and Express)
 
-## A Note on AI Assistance
+-- REST API built Express 
+-- Data models (matches, cities, flights, itineraries)
+-- Route optimisation (Nearest-Neighbour) 
+ -- Best value combinatorial optimisation  
 
-We encourage the use of AI tools (GitHub Copilot, ChatGPT, Claude, etc.) to help you complete these tasks — this reflects how modern developers work.
+ ## Project Structure  
 
-However, **understanding matters more than output**. During review, you may be asked to:
-- Explain your code and the decisions you made
-- Walk through of implementation
-- Discuss trade-offs and alternative approaches
+ ### Backend (/backend/node -express)
+├── src/
+│   ├── bonus/
+│   │   └── BestValueFinder.ts        # Advanced optimisation logic
+│   │
+│   ├── db/
+│   │   ├── connection.ts            # Database connection setup
+│   │   ├── schema.sql               # Database schema
+│   │   └── seed.ts                  # Seed data for testing
+│   │
+│   ├── models/
+│   │   ├── City.ts                  # City data model
+│   │   ├── FlightPrice.ts           # Flight pricing model
+│   │   ├── Itinerary.ts             # Travel itinerary model
+│   │   ├── Match.ts                 # Match data model
+│   │   └── Team.ts                  # Team data model
+│   │
+│   ├── routes/
+│   │   ├── cities.ts                # City-related endpoints
+│   │   ├── itineraries.ts           # Itinerary generation endpoints
+│   │   ├── matches.ts               # Match data endpoints
+│   │   └── optimise.ts              # Route optimisation endpoints
+│   │
+│   ├── strategies/
+│   │   ├── DateOnlyStrategy.ts      # Date-based route planning
+│   │   ├── NearestNeighbourStrategy.ts  # Greedy optimisation algorithm
+│   │   └── RouteStrategy.ts         # Strategy interface
+│   │
+│   ├── utils/
+│   │   ├── buildRoute.ts            # Route construction logic
+│   │   ├── CostCalculator.ts       # Travel cost calculations
+│   │   └── haversine.ts            # Distance calculations
+│   │
+│   └── index.ts                    # Application entry point
+│
+├── __tests__/
+│   ├── Budget.test.ts
+│   └── NearestNeighbourStrategy.test.ts
+│
+├── package.json                    # Dependencies & scripts
+├── tsconfig.json                   # TypeScript config
+├── jest.config.ts                  # Testing configuration
+├── worldcup.db                     # SQLite database
 
-Use AI as a productivity booster, not a replacement for understanding. The goal is to demonstrate your problem-solving ability and grasp of the concepts.
 
-## Requirements
 
-You are expected to complete the following:
+### Frontend (/frontend)
+/frontend
+├── src/
+│   ├── api/
+│   │   └── client.ts              # API client for backend communication
+│   │
+│   ├── components/
+│   │   ├── BestValueDialog.tsx    # Displays best-value travel options
+│   │   ├── BudgetPlanner.tsx      # Budget planning UI
+│   │   ├── CostBreakdownPanel.tsx # Cost analysis view
+│   │   ├── ItineraryPanel.tsx     # Displays generated itineraries
+│   │   ├── MatchBrowser.tsx       # Browse available matches
+│   │   ├── MatchCard.tsx          # Individual match UI component
+│   │   ├── MatchSelector.tsx      # Select matches for planning
+│   │   └── RouteMap.tsx           # Visual map of travel route
+│   │
+│   ├── types/
+│   │   └── index.ts               # Shared TypeScript types
+│   │
+│   ├── App.tsx                   # Root React component
+│   ├── main.tsx                  # Application entry point
+│   └── App.css                   # Global styles
+│
+├── __tests__/
+│   └── RouteMap.test.tsx         # Component tests
+│
+├── index.html                   # Vite HTML entry
+├── vite.config.ts               # Vite configuration
+├── tsconfig.json                # TypeScript config
+├── package.json                 # Dependencies & scripts
 
-1. **Implement API endpoints** — Choose one backend (Node/Express, Java/Spring, Python/Flask, or .NET) and implement all REST endpoints
-2. **Implement route optimisation** — Build a `NearestNeighbourStrategy` using the Strategy Pattern
-3. **Write unit tests** — Add tests to verify your route optimisation algorithm
-4. **Implement frontend map component** — Build a `<RouteMap />` component using react-leaflet
-5. **Document your approach** — Add comments explaining your reasoning and any trade-offs
 
-## Project Structure
 
-```
-junior-challenge/
-├── CHALLENGE.md              # Challenge instructions
-├── README.md                 # This file
-├── seed-data/                # 16 cities, 48 teams, 48 matches
-├── postman/                  # Postman collection for API testing
-├── frontend/                 # Vite + React + TypeScript app
-├── backend/
-│   ├── dotnet-webapi/        # .NET 8 / C# skeleton
-│   ├── java-spring/          # Spring Boot skeleton
-│   ├── node-express/         # Node / Express / TypeScript skeleton
-│   └── python-flask/         # Flask skeleton
-├── docker-compose.yml        # Optional PostgreSQL
-└── .env.example              # Environment configuration
-```
+##  Setup 
 
-## Pre-requisites
+### Preequisties 
 
-### Git
+Node.js   
+npm  
 
-**macOS:**
-```bash
-# Git is included with Xcode Command Line Tools
-xcode-select --install
+### Backend 
 
-# Or using Homebrew
-brew install git
-```
+cd backend/node-express 
+npm install 
+npm run dev 
 
-**Windows:**
+Server runs on: 
 
-Download and install from: https://git-scm.com/downloads
+http://localhost:3008 
 
-### GitHub Account (Optional)
+### Frontend 
 
-Create a free account at: https://github.com/
+cd frontend
+npm install
+npm run dev
 
-### Clone the Repository
+Frontend runs on:
 
-```bash
-git clone <repository-url>
-cd junior-challenge
-```
+http://localhost:5173
 
-### Additional Pre-requisites
+## Key API Endpooints 
 
-Each project has its own runtime requirements. See the relevant README:
+### GET /api/cities 
+returns all cities 
 
-- **Frontend:** Node.js v20+ — see [`frontend/README.md`](frontend/README.md)
-- **Node/Express:** Node.js v20+ — see [`backend/node-express/README.md`](backend/node-express/README.md)
-- **Java/Spring:** Java 21+ — see [`backend/java-spring/README.md`](backend/java-spring/README.md)
-- **Python/Flask:** Python 3.10+ — see [`backend/python-flask/README.md`](backend/python-flask/README.md)
-- **.NET:** .NET 8 SDK — see [`backend/dotnet-webapi/README.md`](backend/dotnet-webapi/README.md)
+### GET /api/matches
 
-## Getting Started
+returns all Matches  
 
-See each project's README for detailed setup instructions:
+-- can be searched city ?city= 
+-- can be searched bt Date ?date 
+-- can be searched by both city and date ?city=atlanta&date=2026-06-14 
+-- can be searched by match id  /match-1
 
-- **Frontend:** [`frontend/README.md`](frontend/README.md)
-- **Node/Express:** [`backend/node-express/README.md`](backend/node-express/README.md)
-- **Java/Spring:** [`backend/java-spring/README.md`](backend/java-spring/README.md)
-- **Python/Flask:** [`backend/python-flask/README.md`](backend/python-flask/README.md)
-- **.NET:** [`backend/dotnet-webapi/README.md`](backend/dotnet-webapi/README.md)
+### POST /api/route/optimise 
 
-## Testing APIs
+runs optimised route  
 
-A Postman collection is provided to help test your API endpoints.
+### POST /api/route/budget 
 
-See [`postman/README.md`](postman/README.md) for detailed import and usage instructions.
+calculates and returns if a route is viable  
 
-### Quick Start
+### POST /api/route/best-value  
 
-1. Install [Postman](https://www.postman.com/downloads/)
-2. Import [`postman/WorldCup2026_API.postman_collection.json`](postman/WorldCup2026_API.postman_collection.json)
-3. Start your backend server on port 3008
-4. Run requests from the collection
+Finds the best value out of a route
 
-### Available Endpoints
+### POST /api/itneraries  
 
-| Method | Endpoint | Task |
-|--------|----------|------|
-| GET | `/api/cities` | #1 |
-| GET | `/api/matches` | #2 |
-| GET | `/api/matches/:id` | #2 |
-| POST | `/api/route/optimise` | #3 |
-| POST | `/api/route/budget` | #5 |
-| POST | `/api/route/best-value` | Bonus |
-| POST | `/api/itineraries` | Pre-built |
-| GET | `/api/itineraries/:id` | Pre-built |
+Saves an itinerary 
 
-The collection uses `http://localhost:3008` as the base URL.
+### GET /api/itneraries
+returns itenerary from  it id 
 
-## Evaluation Criteria
+### GET api/health 
 
-| Criteria | What We Look For |
-|----------|-----------------|
-| **Working Solution** | Code compiles, tests pass, features work end-to-end |
-| **Code Quality** | Clean, readable, well-structured code |
-| **Understanding** | Correct use of patterns, appropriate solutions |
-| **Testing** | Meaningful tests that verify behaviour |
-| **Problem Solving** | How you approach and break down problems |
-| **Documentation** *(Nice to Have)* | Design decisions, diagrams, Postman results and reasoning captured clearly |
+Checks health of the backend server 
+
+## Testing 
+
+### Backend 
+
+npm test 
+
+uses: 
+    Jest 
+    Supertest  
+
+Tests Include: 
+    Route optimisation 
+    Budget Calculations 
+    Edge Cases 
+
+### Frotnend 
+
+npm test 
+
+Includes: 
+    Component rendering tests 
+    RouteMap Behaviour 
+    Edge cases 
+
+
+## Documentation 
+
+Unit tests test table results  
+Postman screenshot results 
+And documentation and design decisions for a further break down. 
