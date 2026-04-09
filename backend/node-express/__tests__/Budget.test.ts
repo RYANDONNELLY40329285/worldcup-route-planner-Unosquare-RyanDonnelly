@@ -3,9 +3,6 @@ import app from '../src/index';
 
 describe('POST /api/route/budget', () => {
 
-  // --------------------------------------------------
-  // Test 1: Happy path (valid route)
-  // --------------------------------------------------
   it('should return feasible=true when within budget and all countries visited', async () => {
     const res = await request(app)
       .post('/api/route/budget')
@@ -17,20 +14,17 @@ describe('POST /api/route/budget', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.feasible).toBe(true);
-    expect(res.body.totalCost).toBeGreaterThan(0);
-    expect(res.body.breakdown.ticketCost).toBeDefined();
+    expect(res.body.costBreakdown.total).toBeGreaterThan(0);
+    expect(res.body.costBreakdown.tickets).toBeDefined();
   });
 
-  // --------------------------------------------------
-  // Test 2: Over budget
-  // --------------------------------------------------
   it('should return feasible=false when over budget', async () => {
     const res = await request(app)
       .post('/api/route/budget')
       .send({
         matchIds: ['match-1', 'match-5', 'match-11', 'match-20', 'match-35'],
         originCityId: 'city-atlanta',
-        budget: 100, // very low
+        budget: 100,
       });
 
     expect(res.status).toBe(200);
@@ -40,9 +34,6 @@ describe('POST /api/route/budget', () => {
     );
   });
 
-  // --------------------------------------------------
-  //  Test 3: Missing countries
-  // --------------------------------------------------
   it('should return missing countries when not all visited', async () => {
     const res = await request(app)
       .post('/api/route/budget')
@@ -59,14 +50,11 @@ describe('POST /api/route/budget', () => {
     expect(res.body.missingCountries).toContain('Canada');
   });
 
-  // --------------------------------------------------
-  //  Test 4: Invalid input
-  // --------------------------------------------------
   it('should return 400 for invalid request body', async () => {
     const res = await request(app)
       .post('/api/route/budget')
       .send({
-        matchIds: [], // invalid
+        matchIds: [],
         originCityId: '',
         budget: null,
       });
@@ -75,81 +63,73 @@ describe('POST /api/route/budget', () => {
     expect(res.body.error).toBeDefined();
   });
 
-
   it('should calculate correct total cost breakdown', async () => {
-  const res = await request(app)
-    .post('/api/route/budget')
-    .send({
-      matchIds: ['match-1'],
-      originCityId: 'city-atlanta',
-      budget: 10000,
-    });
+    const res = await request(app)
+      .post('/api/route/budget')
+      .send({
+        matchIds: ['match-1'],
+        originCityId: 'city-atlanta',
+        budget: 10000,
+      });
 
-  const { ticketCost, flightCost, accommodationCost } = res.body.breakdown;
+    const { tickets, flights, accommodation, total } = res.body.costBreakdown;
 
-  expect(res.body.totalCost).toBe(
-    ticketCost + flightCost + accommodationCost
-  );
-});
+    expect(total).toBe(tickets + flights + accommodation);
+  });
 
-// orgin nopt found
-it('should return 404 if origin city does not exist', async () => {
-  const res = await request(app)
-    .post('/api/route/budget')
-    .send({
-      matchIds: ['match-1'],
-      originCityId: 'invalid-city',
-      budget: 1000,
-    });
+  it('should return 404 if origin city does not exist', async () => {
+    const res = await request(app)
+      .post('/api/route/budget')
+      .send({
+        matchIds: ['match-1'],
+        originCityId: 'invalid-city',
+        budget: 1000,
+      });
 
-  expect(res.status).toBe(404);
-  expect(res.body.error).toBe('Origin city not found');
-});
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('Origin city not found');
+  });
 
-it('should return 404 if no matches found for given IDs', async () => {
-  const res = await request(app)
-    .post('/api/route/budget')
-    .send({
-      matchIds: ['invalid-match'],
-      originCityId: 'city-atlanta',
-      budget: 1000,
-    });
+  it('should return 404 if no matches found for given IDs', async () => {
+    const res = await request(app)
+      .post('/api/route/budget')
+      .send({
+        matchIds: ['invalid-match'],
+        originCityId: 'city-atlanta',
+        budget: 1000,
+      });
 
-  expect(res.status).toBe(404);
-  expect(res.body.error).toBe('No matches found');
-});
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('No matches found');
+  });
 
+  it('should handle missing flight routes gracefully (cost = 0)', async () => {
+    const res = await request(app)
+      .post('/api/route/budget')
+      .send({
+        matchIds: ['match-1'],
+        originCityId: 'city-vancouver',
+        budget: 10000,
+      });
 
+    expect(res.status).toBe(200);
+    expect(res.body.costBreakdown.flights).toBeGreaterThanOrEqual(0);
+  });
 
-it('should handle missing flight routes gracefully (cost = 0)', async () => {
-  const res = await request(app)
-    .post('/api/route/budget')
-    .send({
-      matchIds: ['match-1'],  
-      originCityId: 'city-vancouver', 
-      budget: 10000,
-    });
+  it('should be feasible when total equals budget exactly', async () => {
+    const res = await request(app)
+      .post('/api/route/budget')
+      .send({
+        matchIds: ['match-1'],
+        originCityId: 'city-atlanta',
+        budget: 10000,
+      });
 
-  expect(res.status).toBe(200);
-  expect(res.body.breakdown.flightCost).toBeGreaterThanOrEqual(0);
-});
+    expect(res.status).toBe(200);
 
-it('should be feasible when totalCost equals budget exactly', async () => {
-  const res = await request(app)
-    .post('/api/route/budget')
-    .send({
-      matchIds: ['match-1'],
-      originCityId: 'city-atlanta',
-      budget: 10000,  
-    });
-
-  expect(res.status).toBe(200);
-
-  if (res.body.totalCost === res.body.budget) {
-    expect(res.body.feasible).toBe(true);
-  }
-});
-
-
+    if (res.body.costBreakdown.total === 10000) {
+      expect(res.body.feasible).toBe(true);
+    }
+  });
 
 });

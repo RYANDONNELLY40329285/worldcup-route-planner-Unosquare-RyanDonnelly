@@ -196,18 +196,20 @@ router.post('/budget', (req, res) => {
     }
 
     // Response
-    return res.status(200).json({
-      breakdown: {
-        ticketCost,
-        flightCost,
-        accommodationCost,
-      },
-      totalCost,
-      budget,
+   return res.status(200).json({
       feasible,
       countriesVisited,
       missingCountries,
       suggestions,
+
+      costBreakdown: {
+        flights: flightCost,
+        accommodation: accommodationCost,
+        tickets: ticketCost,
+        total: totalCost,
+      },
+
+      minimumBudgetRequired: totalCost, 
     });
 
   } catch (error) {
