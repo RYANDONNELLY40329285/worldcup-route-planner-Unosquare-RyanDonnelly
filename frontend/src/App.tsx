@@ -190,12 +190,12 @@ function App() {
             <label htmlFor="budget">Your Budget</label>
             <div className="budget-input-wrapper-header">
               <span className="currency-symbol-header">$</span>
-              <input
-                id="budget"
-                type="number"
-                value={budget}
-                disabled
-                className="budget-input-disabled"
+           <input
+             id="budget"
+            type="number"
+            value={budget}
+            onChange={(e) => setBudget(Number(e.target.value))}
+            className="budget-input"
               />
             </div>
           </div>
