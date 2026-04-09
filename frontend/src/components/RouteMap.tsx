@@ -140,6 +140,7 @@ function RouteMap({ route, originCity }: RouteMapProps) {
               <br />
               <span style={{ fontSize: '0.85em', color: '#666' }}>{firstStop.city.country}</span>
               <hr style={{ margin: '0.5rem 0', border: 'none', borderTop: '1px solid #ddd' }} />
+              
               {/* ============================================================
                   TODO: Render match details for each stop (YOUR TASK)
                   ============================================================
@@ -148,7 +149,43 @@ function RouteMap({ route, originCity }: RouteMapProps) {
                     - <div className="popup-match"> for each match
                     - <span className="popup-match-number"> for stop number
                     - <span className="popup-match-date"> for the date
-              */}
+              */
+
+
+                    stops.map((stop) => {
+  const { match, stopNumber } = stop;
+
+  const getTeamName = (team: any) =>
+    typeof team === 'string' ? team : team.name;
+
+  const homeTeam = getTeamName(match.homeTeam);
+  const awayTeam = getTeamName(match.awayTeam);
+
+  const formattedDate = new Date(match.kickoff).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
+  return (
+    <div key={match.id} className="popup-match">
+      <div className="popup-match-number">
+        Stop {stopNumber}
+      </div>
+
+      <div>
+        <strong>{homeTeam}</strong> vs <strong>{awayTeam}</strong>
+      </div>
+
+      <div className="popup-match-date">
+        {formattedDate}
+      </div>
+    </div>
+  );
+})}
+
+              
+              
             </Popup>
           </Marker>
         );
