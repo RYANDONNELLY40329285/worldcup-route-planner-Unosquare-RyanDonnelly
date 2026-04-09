@@ -1,3 +1,6 @@
+![Node.js](https://img.shields.io/badge/Node.js-Backend-green)
+![React](https://img.shields.io/badge/React-Frontend-blue)
+
 #  World Cup 2026 Travel Planner 
 
 Unosquare Graduate / Junior SWE Coding Challenge
