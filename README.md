@@ -13,7 +13,7 @@ End users can select matches, calculate total trip cost and get an optimised tra
 ## Architecture Overiew 
 
 ### Frontend (React + TypeScript)
--- Built with Ract + Rite 
+-- Built with Ract + Vite 
 -- Includes an interactive map (react-leaflet)
 -- Uses React Hookls and integrates with backend via Rest API 
 
