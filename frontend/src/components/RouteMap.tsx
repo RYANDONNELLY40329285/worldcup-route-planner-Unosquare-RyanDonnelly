@@ -152,7 +152,7 @@ function RouteMap({ route, originCity }: RouteMapProps) {
               */
 
 
-                    stops.map((stop) => {
+       stops.map((stop) => {
   const { match, stopNumber } = stop;
 
   const getTeamName = (team: any) =>
@@ -164,25 +164,20 @@ function RouteMap({ route, originCity }: RouteMapProps) {
   const formattedDate = new Date(match.kickoff).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
-    year: 'numeric',
   });
 
   return (
     <div key={match.id} className="popup-match">
-      <div className="popup-match-number">
-        Stop {stopNumber}
-      </div>
-
+      <span className="popup-match-number">Stop {stopNumber}</span>
       <div>
-        <strong>{homeTeam}</strong> vs <strong>{awayTeam}</strong>
+        {homeTeam} vs {awayTeam}
       </div>
-
-      <div className="popup-match-date">
-        {formattedDate}
-      </div>
+      <span className="popup-match-date">{formattedDate}</span>
     </div>
   );
-})}
+})
+
+}
 
               
               
